@@ -309,6 +309,8 @@ def main():
 	parser.add_argument('-e', '--export', dest='export', action='store_true', help='Converts nutrient data into json documents and outputs to standard out, each document is seperated by a newline.')
 	parser.add_argument('--mhost', dest='mhost', help='Mongo hostname. Defaults to localhost.', default='localhost')
 	parser.add_argument('--mport', dest='mport', help='Mongo port. Defaults to 27017.', default=27017)
+	parser.add_argument('--muser', dest='muser', help='Mongo username for db.')
+	parser.add_argument('--mpass', dest='mpass', help='Mongo password for db.')
 	parser.add_argument('--mdb', dest='mdb', help='Mongo database to connect to.')
 	parser.add_argument('--mcoll', dest='mcoll', help='Mongo collection to export data to.')
 
@@ -346,6 +348,12 @@ def main():
 	# Export each food item as json document into a mongodb
 	if args['export']:
 		nutrients.convert_to_documents()
+	elif (args['mhost'] and args['mport'] and args['mdb'] and args['mcoll'] and args['muser'] and args['mpass']):
+		# Generate uri
+		muri = "mongodb://" + args['muser'] + ":" + args['mpass'] + "@" +  args['mhost'] + ":" + args['mport'] + "/" + args['mdb']
+		print muri
+		# Export documents to mongo instance
+		nutrients.convert_to_documents(mongo_client=pymongo.MongoClient(muri), mongo_db=args['mdb'], mongo_collection=args['mcoll'])
 	elif (args['mhost'] and args['mport'] and args['mdb'] and args['mcoll']):
 		# Export documents to mongo instance
 		nutrients.convert_to_documents(mongo_client=pymongo.MongoClient(args['mhost'], int(args['mport'])), mongo_db=args['mdb'], mongo_collection=args['mcoll'])
